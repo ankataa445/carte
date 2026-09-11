@@ -157,6 +157,69 @@
     URL.revokeObjectURL(url);
   }
 
+  function exporterPdf() {
+    if (!window.jspdf || !window.jspdf.jsPDF) { alert("Librairie PDF non chargée. Vérifie ta connexion."); return; }
+    var rows = filtres();
+    var doc = new window.jspdf.jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+    var W = doc.internal.pageSize.getWidth();
+
+    // En-tête
+    doc.setFillColor(90, 46, 18);            // marron AKT
+    doc.rect(0, 0, W, 22, "F");
+    doc.setTextColor(233, 190, 99);          // doré
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(15);
+    doc.text("AN KA TAA", 14, 11);
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.text("Nos racines, notre avenir  -  Liste des adherents", 14, 17);
+
+    var libFiltre = filtre === "payé" ? "A jour" : (filtre === "non_payé" ? "Non paye" : "Tous");
+    var payes = rows.filter(estPaye).length;
+    var sousTitre = "Genere le " + new Date().toLocaleDateString("fr-FR") +
+      "  -  Filtre : " + libFiltre +
+      "  -  " + rows.length + " adherent(s), " + payes + " a jour, " + (rows.length - payes) + " non paye(s)";
+    doc.setTextColor(90, 46, 18);
+    doc.setFontSize(9);
+    doc.text(sousTitre, 14, 29);
+
+    doc.autoTable({
+      startY: 33,
+      head: [["Matricule", "Nom / Prenom", "Email", "Ville", "Type", "Expire", "Statut"]],
+      body: rows.map(function (a) {
+        return [
+          a.matricule || "",
+          ((a.nom || "") + " " + (a.prenom || "")).trim(),
+          a.email || "",
+          a.ville || "",
+          a.type_adhesion || "",
+          a.date_expiration || "",
+          estPaye(a) ? "Paye" : "Non paye"
+        ];
+      }),
+      styles: { font: "helvetica", fontSize: 8, cellPadding: 2, overflow: "linebreak" },
+      headStyles: { fillColor: [90, 46, 18], textColor: [255, 255, 255], fontStyle: "bold" },
+      alternateRowStyles: { fillColor: [251, 247, 240] },
+      columnStyles: { 0: { cellWidth: 30 }, 2: { cellWidth: 60 } },
+      didParseCell: function (data) {
+        if (data.section === "body" && data.column.index === 6) {
+          var paye = data.cell.raw === "Paye";
+          data.cell.styles.textColor = paye ? [78, 124, 51] : [178, 58, 46];
+          data.cell.styles.fontStyle = "bold";
+        }
+      },
+      didDrawPage: function (data) {
+        var page = doc.internal.getCurrentPageInfo().pageNumber;
+        doc.setFontSize(8); doc.setTextColor(150);
+        doc.text("Culture - Education - Solidarite - Partenariats", 14, doc.internal.pageSize.getHeight() - 6);
+        doc.text("Page " + page, W - 22, doc.internal.pageSize.getHeight() - 6);
+      }
+    });
+
+    doc.save("adherents-akt-" + new Date().toISOString().slice(0, 10) + ".pdf");
+  }
+
   function importerFichier(file) {
     var reader = new FileReader();
     reader.onload = function () {
@@ -190,6 +253,7 @@
   els.q.addEventListener("input", function () { recherche = norm(els.q.value.trim()); rendreTable(); });
   document.getElementById("download-json-btn").addEventListener("click", telechargerJson);
   document.getElementById("csv-btn").addEventListener("click", exporterCsv);
+  document.getElementById("pdf-btn").addEventListener("click", exporterPdf);
   document.getElementById("reset-local-btn").addEventListener("click", reinitialiserLocal);
   document.getElementById("copy-json-btn").addEventListener("click", function () {
     els.jsonOut.select();
