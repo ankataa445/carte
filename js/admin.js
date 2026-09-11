@@ -85,8 +85,8 @@
 
   function badgeStatut(a) {
     return estPaye(a)
-      ? '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-50 text-akt-green border border-akt-green/30">● Payé</span>'
-      : '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-50 text-akt-red border border-akt-red/30">● Non payé</span>';
+      ? '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-50 text-akt-green border border-akt-green/30">Payé</span>'
+      : '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-50 text-akt-red border border-akt-red/30">Non payé</span>';
   }
 
   function rendreTable() {
@@ -194,7 +194,7 @@
   document.getElementById("copy-json-btn").addEventListener("click", function () {
     els.jsonOut.select();
     navigator.clipboard ? navigator.clipboard.writeText(els.jsonOut.value) : document.execCommand("copy");
-    var b = this, t = b.textContent; b.textContent = "Copié ✓";
+    var b = this, t = b.textContent; b.textContent = "Copié";
     setTimeout(function () { b.textContent = t; }, 1500);
   });
   document.getElementById("import-file-btn").addEventListener("click", function () {

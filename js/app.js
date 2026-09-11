@@ -155,8 +155,7 @@
     els.cardSection.classList.add("hidden");
     var email = state.asso && state.asso.email ? state.asso.email : "contact@ankataa.org";
     afficherMessage(
-      '<div class="flex items-start gap-3">' +
-        '<span style="font-size:26px">⚠️</span>' +
+      '<div>' +
         '<div>' +
           '<h2 class="font-display text-xl font-bold">Cotisation non à jour</h2>' +
           '<p class="mt-1 text-sm">Bonjour <strong>' + esc(a.prenom + " " + a.nom) + '</strong>, ' +
