@@ -15,6 +15,7 @@
     searchSection: document.getElementById("search-section"),
     card: document.getElementById("member-card"),
     downloadBtn: document.getElementById("download-btn"),
+    downloadPdfBtn: document.getElementById("download-pdf-btn"),
     resetBtn: document.getElementById("reset-btn"),
     year: document.getElementById("year")
   };
@@ -33,11 +34,23 @@
     });
   }
 
-  function trouver(q) {
+  // Recherche par matricule, email OU nom/prénom. Retourne un tableau.
+  function trouverTous(q) {
     var t = norm(q);
-    return state.adherents.find(function (a) {
+    if (!t) return [];
+    // 1) Correspondance exacte matricule / email
+    var exact = state.adherents.filter(function (a) {
       return norm(a.matricule) === t || norm(a.email) === t;
-    }) || null;
+    });
+    if (exact.length) return exact;
+    // 2) Correspondance par nom/prénom (ordre indifférent, tous les mots présents)
+    var tokens = t.split(/\s+/).filter(Boolean);
+    return state.adherents.filter(function (a) {
+      var full1 = norm(a.prenom + " " + a.nom);
+      var full2 = norm(a.nom + " " + a.prenom);
+      if (full1 === t || full2 === t) return true;
+      return tokens.every(function (tok) { return full1.indexOf(tok) !== -1; });
+    });
   }
 
   /* ---------- Chargement des données ---------- */
@@ -198,12 +211,43 @@
     if (history.replaceState) history.replaceState(null, "", location.pathname);
   }
 
-  function rechercher(q) {
-    if (!q) return;
-    var a = trouver(q);
-    if (!a) return afficherIntrouvable();
+  function traiterAdherent(a) {
     if (estPaye(a)) afficherCarte(a);
     else afficherNonPaye(a);
+  }
+
+  function afficherChoix(results) {
+    els.cardSection.classList.add("hidden");
+    var items = results.map(function (a) {
+      return '<button data-pick="' + esc(a.matricule) + '" ' +
+        'class="w-full text-left px-4 py-3 rounded-xl border border-akt-brown/15 bg-white hover:bg-akt-cream transition flex items-center justify-between gap-3">' +
+        '<span><span class="font-semibold">' + esc(a.prenom + " " + a.nom) + '</span>' +
+        '<span class="block text-xs text-akt-brown/60">' + esc(a.matricule) +
+        (a.ville ? ' · ' + esc(a.ville) : '') + '</span></span>' +
+        '<span class="text-xs text-akt-brown/40">Choisir</span>' +
+      '</button>';
+    }).join("");
+    afficherMessage(
+      '<h2 class="font-display text-lg font-bold text-akt-brown">Plusieurs adhérents trouvés</h2>' +
+      '<p class="mt-1 mb-3 text-sm text-akt-brown/70">Sélectionne ton profil :</p>' +
+      '<div class="space-y-2">' + items + '</div>',
+      "info"
+    );
+    els.message.querySelectorAll("[data-pick]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var m = b.getAttribute("data-pick");
+        var a = state.adherents.find(function (x) { return x.matricule === m; });
+        if (a) traiterAdherent(a);
+      });
+    });
+  }
+
+  function rechercher(q) {
+    if (!q) return;
+    var results = trouverTous(q);
+    if (results.length === 0) return afficherIntrouvable();
+    if (results.length === 1) return traiterAdherent(results[0]);
+    afficherChoix(results);
   }
 
   /* ---------- Export PNG ---------- */
@@ -223,12 +267,47 @@
       .finally(function () { btn.disabled = false; btn.textContent = label; });
   }
 
+  /* ---------- Export PDF ---------- */
+  function telechargerPdf() {
+    if (!state.current) return;
+    if (!window.jspdf || !window.jspdf.jsPDF) { alert("Librairie PDF non chargée. Vérifie ta connexion."); return; }
+    var btn = els.downloadPdfBtn;
+    var label = btn.textContent;
+    btn.disabled = true; btn.textContent = "Génération…";
+    html2canvas(els.card, { scale: 3, backgroundColor: null, useCORS: true, logging: false })
+      .then(function (canvas) {
+        var ratio = canvas.height / canvas.width;
+        var cardW = 150;                    // mm
+        var cardH = cardW * ratio;
+        var doc = new window.jspdf.jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+        var pw = doc.internal.pageSize.getWidth();
+        var ph = doc.internal.pageSize.getHeight();
+        var x = (pw - cardW) / 2;
+        var y = (ph - cardH) / 2 - 6;
+
+        doc.setFont("helvetica", "bold"); doc.setFontSize(13); doc.setTextColor(90, 46, 18);
+        doc.text("AN KA TAA", pw / 2, y - 8, { align: "center" });
+        doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(120, 74, 30);
+        doc.text("Carte d'adherent - Nos racines, notre avenir", pw / 2, y - 3, { align: "center" });
+
+        doc.addImage(canvas.toDataURL("image/png"), "PNG", x, y, cardW, cardH);
+
+        doc.setFontSize(8); doc.setTextColor(150);
+        doc.text("Carte personnelle - a presenter lors des evenements de l'association.", pw / 2, y + cardH + 8, { align: "center" });
+
+        doc.save("carte-akt-" + (state.current.matricule || "adherent") + ".pdf");
+      })
+      .catch(function () { alert("Impossible de générer le PDF. Réessaie."); })
+      .finally(function () { btn.disabled = false; btn.textContent = label; });
+  }
+
   /* ---------- Événements ---------- */
   els.form.addEventListener("submit", function (e) {
     e.preventDefault();
     rechercher(els.input.value);
   });
   els.downloadBtn.addEventListener("click", telecharger);
+  els.downloadPdfBtn.addEventListener("click", telechargerPdf);
   els.resetBtn.addEventListener("click", reinitialiser);
   document.querySelectorAll("[data-demo]").forEach(function (b) {
     b.addEventListener("click", function () {

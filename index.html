@@ -82,11 +82,11 @@
     <!-- Recherche -->
     <section id="search-section" class="max-w-xl mx-auto text-center">
       <h1 class="font-display text-3xl md:text-4xl font-bold text-akt-brown">Ma carte d'adhérent</h1>
-      <p class="mt-2 text-akt-brown/70">Saisis ton <strong>matricule</strong> ou ton <strong>email</strong> pour afficher ta carte de membre.</p>
+      <p class="mt-2 text-akt-brown/70">Saisis ton <strong>matricule</strong>, ton <strong>email</strong> ou ton <strong>nom et prénom</strong> pour afficher ta carte de membre.</p>
 
       <form id="search-form" class="mt-6 flex flex-col sm:flex-row gap-3">
         <input id="search-input" type="text" required
-          placeholder="AKT-2025-001 ou email@exemple.com"
+          placeholder="AKT-2025-001, email ou Nom Prénom"
           class="flex-1 px-4 py-3 rounded-xl border border-akt-brown/20 bg-white focus:outline-none focus:ring-2 focus:ring-akt-gold" />
         <button type="submit"
           class="px-6 py-3 rounded-xl bg-akt-brown text-white font-semibold hover:bg-akt-brownd transition shadow-lg shadow-akt-brown/20">
@@ -113,7 +113,11 @@
       <div class="mt-6 flex flex-wrap gap-3 justify-center">
         <button id="download-btn"
           class="px-6 py-3 rounded-xl bg-akt-gold text-akt-brownd font-bold hover:bg-akt-goldl transition shadow-lg shadow-akt-gold/30 flex items-center gap-2">
-          Télécharger ma carte
+          Télécharger en image
+        </button>
+        <button id="download-pdf-btn"
+          class="px-6 py-3 rounded-xl bg-akt-brown text-white font-bold hover:bg-akt-brownd transition shadow-lg shadow-akt-brown/20 flex items-center gap-2">
+          Télécharger en PDF
         </button>
         <button id="reset-btn"
           class="px-6 py-3 rounded-xl border border-akt-brown/20 text-akt-brown hover:bg-white transition">
@@ -132,6 +136,7 @@
   <!-- Librairies -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
