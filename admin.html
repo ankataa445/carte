@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AN KA TAA — Tableau de bord adhérents</title>
+  <link rel="icon" href="assets/logo.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { akt: {
+      brown:'#5A2E12', brownd:'#3E1F0B', gold:'#D89A2E', goldl:'#E9BE63',
+      green:'#4E7C33', red:'#B23A2E', cream:'#FBF7F0' } }, fontFamily:{ display:['Georgia','serif'] } } } }
+  </script>
+  <style>body{background:#FBF7F0}</style>
+</head>
+<body class="min-h-screen text-akt-brownd">
+
+  <header class="bg-white/80 backdrop-blur border-b border-akt-gold/30 sticky top-0 z-20">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-3">
+        <img src="assets/logo.png" alt="Logo AN KA TAA" class="h-11 w-11 object-contain" />
+        <div class="leading-tight">
+          <p class="font-display font-bold text-akt-brown text-lg">AN KA TAA — Admin</p>
+          <p class="text-[11px] tracking-wide text-akt-red uppercase">Suivi des adhésions</p>
+        </div>
+      </a>
+      <a href="index.html" class="text-sm px-3 py-1.5 rounded-lg border border-akt-brown/20 text-akt-brown hover:bg-akt-brown hover:text-white transition">← Espace membre</a>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-8">
+
+    <!-- Stats -->
+    <section id="stats" class="grid grid-cols-2 md:grid-cols-4 gap-4"></section>
+
+    <!-- Barre d'outils -->
+    <section class="mt-6 flex flex-wrap items-center gap-3">
+      <input id="q" type="text" placeholder="Rechercher (nom, matricule, email, ville…)"
+        class="flex-1 min-w-[220px] px-4 py-2.5 rounded-xl border border-akt-brown/20 bg-white focus:outline-none focus:ring-2 focus:ring-akt-gold" />
+      <div class="inline-flex rounded-xl border border-akt-brown/20 overflow-hidden bg-white">
+        <button data-filter="tous" class="filter-btn px-4 py-2.5 text-sm font-medium bg-akt-brown text-white">Tous</button>
+        <button data-filter="payé" class="filter-btn px-4 py-2.5 text-sm font-medium">Payé</button>
+        <button data-filter="non_payé" class="filter-btn px-4 py-2.5 text-sm font-medium">Non payé</button>
+      </div>
+    </section>
+
+    <!-- Tableau -->
+    <section class="mt-6 bg-white rounded-2xl border border-akt-brown/10 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-akt-cream text-akt-brown text-left">
+            <tr>
+              <th class="px-4 py-3 font-semibold">Matricule</th>
+              <th class="px-4 py-3 font-semibold">Nom / Prénom</th>
+              <th class="px-4 py-3 font-semibold">Email</th>
+              <th class="px-4 py-3 font-semibold">Ville</th>
+              <th class="px-4 py-3 font-semibold">Type</th>
+              <th class="px-4 py-3 font-semibold">Expire</th>
+              <th class="px-4 py-3 font-semibold">Statut</th>
+              <th class="px-4 py-3 font-semibold text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody id="tbody" class="divide-y divide-akt-brown/5"></tbody>
+        </table>
+      </div>
+      <p id="empty" class="hidden p-8 text-center text-akt-brown/50">Aucun adhérent ne correspond.</p>
+    </section>
+
+    <!-- Export -->
+    <section class="mt-8 bg-white rounded-2xl border border-akt-brown/10 shadow-sm p-6">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="font-display text-xl font-bold text-akt-brown">Fichier de suivi</h2>
+          <p class="text-sm text-akt-brown/70 mt-1">Modifie les statuts ci-dessus, puis exporte le JSON à jour pour le déposer sur GitHub (dossier <code>data/</code>).</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button id="import-file-btn" class="px-4 py-2.5 rounded-xl border border-akt-brown/20 text-akt-brown hover:bg-akt-cream transition text-sm">Importer un JSON</button>
+          <input id="import-file" type="file" accept="application/json,.json" class="hidden" />
+          <button id="csv-btn" class="px-4 py-2.5 rounded-xl border border-akt-brown/20 text-akt-brown hover:bg-akt-cream transition text-sm">Exporter CSV</button>
+          <button id="reset-local-btn" class="px-4 py-2.5 rounded-xl border border-akt-red/30 text-akt-red hover:bg-red-50 transition text-sm">Réinitialiser</button>
+          <button id="download-json-btn" class="px-5 py-2.5 rounded-xl bg-akt-gold text-akt-brownd font-bold hover:bg-akt-goldl transition text-sm shadow">⬇ Télécharger adherents.json</button>
+        </div>
+      </div>
+
+      <details class="mt-5 group">
+        <summary class="cursor-pointer text-sm font-medium text-akt-brown select-none">Voir / copier le code JSON à jour</summary>
+        <div class="mt-3">
+          <button id="copy-json-btn" class="mb-2 text-xs px-3 py-1.5 rounded-lg bg-akt-brown text-white hover:bg-akt-brownd transition">Copier</button>
+          <textarea id="json-out" readonly rows="14"
+            class="w-full font-mono text-xs p-4 rounded-xl border border-akt-brown/15 bg-akt-cream/60 focus:outline-none"></textarea>
+        </div>
+      </details>
+      <p class="mt-4 text-xs text-akt-brown/50">⚠️ Les modifications sont enregistrées dans ce navigateur (localStorage). Pour les rendre publiques, télécharge le JSON et commit-le sur le dépôt GitHub Pages.</p>
+    </section>
+  </main>
+
+  <footer class="mt-12 py-6 text-center text-xs text-akt-brown/50 border-t border-akt-gold/20">
+    <p>Culture · Éducation · Solidarité · Partenariats — AN KA TAA</p>
+  </footer>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>

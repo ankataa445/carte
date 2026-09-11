@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AN KA TAA — Espace adhérent</title>
+  <meta name="description" content="Carte de membre dématérialisée de l'association AN KA TAA. Nos racines, notre avenir." />
+  <link rel="icon" href="assets/logo.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            akt: {
+              brown: '#5A2E12',
+              brownd: '#3E1F0B',
+              gold: '#D89A2E',
+              goldl: '#E9BE63',
+              green: '#4E7C33',
+              red: '#B23A2E',
+              cream: '#FBF7F0'
+            }
+          },
+          fontFamily: { display: ['Georgia', 'serif'] }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background:
+      radial-gradient(circle at 15% -10%, #f6ecd8 0, transparent 45%),
+      radial-gradient(circle at 95% 110%, #eef3e5 0, transparent 45%),
+      #FBF7F0; }
+
+    /* ===== Carte adhérent ===== */
+    .akt-card {
+      width: 640px; max-width: 100%;
+      aspect-ratio: 1.586 / 1;
+      border-radius: 22px;
+      position: relative;
+      overflow: hidden;
+      color: #fff;
+      background: linear-gradient(135deg, #3E1F0B 0%, #5A2E12 45%, #7a4a1e 100%);
+      box-shadow: 0 25px 60px -15px rgba(58,30,10,.55);
+      font-family: Georgia, 'Times New Roman', serif;
+      isolation: isolate;
+    }
+    .akt-card::before {
+      content: ""; position: absolute; inset: 0; z-index: -1;
+      background:
+        radial-gradient(circle at 88% 18%, rgba(216,154,46,.45), transparent 42%),
+        radial-gradient(circle at 8% 92%, rgba(78,124,51,.40), transparent 45%);
+    }
+    .akt-card .arc {
+      position:absolute; top:-70px; right:-70px; width:230px; height:230px;
+      border:14px solid rgba(216,154,46,.85); border-radius:50%;
+      border-left-color:transparent; border-bottom-color:transparent;
+      transform:rotate(15deg);
+    }
+    .akt-strip { height:6px; background:linear-gradient(90deg,#D89A2E,#4E7C33 55%,#B23A2E); }
+    .gold-text { color:#E9BE63; }
+  </style>
+</head>
+<body class="min-h-screen text-akt-brownd">
+
+  <!-- Header -->
+  <header class="bg-white/80 backdrop-blur border-b border-akt-gold/30 sticky top-0 z-20">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-3">
+        <img src="assets/logo.png" alt="Logo AN KA TAA" class="h-11 w-11 object-contain" />
+        <div class="leading-tight">
+          <p class="font-display font-bold text-akt-brown text-lg">AN KA TAA</p>
+          <p class="text-[11px] tracking-wide text-akt-red uppercase">Nos racines, notre avenir</p>
+        </div>
+      </a>
+      <a href="admin.html" class="text-sm px-3 py-1.5 rounded-lg border border-akt-brown/20 text-akt-brown hover:bg-akt-brown hover:text-white transition">Espace admin</a>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 py-8">
+
+    <!-- Recherche -->
+    <section id="search-section" class="max-w-xl mx-auto text-center">
+      <h1 class="font-display text-3xl md:text-4xl font-bold text-akt-brown">Ma carte d'adhérent</h1>
+      <p class="mt-2 text-akt-brown/70">Saisis ton <strong>matricule</strong> ou ton <strong>email</strong> pour afficher ta carte de membre.</p>
+
+      <form id="search-form" class="mt-6 flex flex-col sm:flex-row gap-3">
+        <input id="search-input" type="text" required
+          placeholder="AKT-2025-001 ou email@exemple.com"
+          class="flex-1 px-4 py-3 rounded-xl border border-akt-brown/20 bg-white focus:outline-none focus:ring-2 focus:ring-akt-gold" />
+        <button type="submit"
+          class="px-6 py-3 rounded-xl bg-akt-brown text-white font-semibold hover:bg-akt-brownd transition shadow-lg shadow-akt-brown/20">
+          Rechercher
+        </button>
+      </form>
+
+      <p id="hint" class="mt-4 text-xs text-akt-brown/50">
+        Astuce : essaie <button class="underline decoration-akt-gold" data-demo="AKT-2025-001">AKT-2025-001</button>
+        (payé) ou <button class="underline decoration-akt-gold" data-demo="AKT-2025-003">AKT-2025-003</button> (non payé).
+      </p>
+    </section>
+
+    <!-- Message d'état -->
+    <div id="message" class="hidden max-w-xl mx-auto mt-8"></div>
+
+    <!-- Zone carte -->
+    <section id="card-section" class="hidden mt-10 flex-col items-center">
+      <div id="card-wrap" class="flex justify-center">
+        <!-- Carte injectée ici -->
+        <article id="member-card" class="akt-card"></article>
+      </div>
+
+      <div class="mt-6 flex flex-wrap gap-3 justify-center">
+        <button id="download-btn"
+          class="px-6 py-3 rounded-xl bg-akt-gold text-akt-brownd font-bold hover:bg-akt-goldl transition shadow-lg shadow-akt-gold/30 flex items-center gap-2">
+          ⬇ Télécharger ma carte
+        </button>
+        <button id="reset-btn"
+          class="px-6 py-3 rounded-xl border border-akt-brown/20 text-akt-brown hover:bg-white transition">
+          Nouvelle recherche
+        </button>
+      </div>
+      <p class="mt-3 text-xs text-akt-brown/50">Carte exportée en image PNG haute résolution.</p>
+    </section>
+  </main>
+
+  <footer class="mt-12 py-6 text-center text-xs text-akt-brown/50 border-t border-akt-gold/20">
+    <p>Culture · Éducation · Solidarité · Partenariats</p>
+    <p class="mt-1">© <span id="year"></span> Association AN KA TAA — Carte d'adhérent dématérialisée</p>
+  </footer>
+
+  <!-- Librairies -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
